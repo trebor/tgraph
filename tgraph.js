@@ -76,7 +76,7 @@ TLink.instanceOf = function(thing) {
 }
 
 var TGraph = function() {
-  this.nodes_by_id = {};
+  this.nodesById = {};
   this.nodes = [];
   this.links = [];
 }
@@ -118,7 +118,7 @@ TGraph.prototype = {
 
       // if node with same id name exits, return that
 
-      node = this.nodes_by_id[nodeOrId.getId()];
+      node = this.nodesById[nodeOrId.getId()];
       if (node !== undefined)
         return node;
           
@@ -136,7 +136,7 @@ TGraph.prototype = {
     // add new node to graph
 
     this.nodes.push(node);
-    this.nodes_by_id[node.getId()] = node;
+    this.nodesById[node.getId()] = node;
     return node;
   },
 
@@ -144,14 +144,16 @@ TGraph.prototype = {
 
   establishLink: function(source, target, link_properties) {
     var link;
+    var self = this;
 
-    this.links.some(function(existingLink) {
+    this.getLinks().some(function(existingLink) {
       if (existingLink.getSource() == source 
           && existingLink.getTarget() == target 
-          && existingLink.getProperties() == link_properties) {
+          && self.tEquals.call(link_properties, existingLink.getProperties())) {
         link = existingLink;
         return true;
       }
+
       return false;
     });
     
@@ -175,7 +177,7 @@ TGraph.prototype = {
 
     // if is an id
 
-    return this.nodes_by_id[nodeOrId];
+    return this.nodesById[nodeOrId];
   },
 
   // accepts a link or a link id and returns a link if and only if that
@@ -191,7 +193,7 @@ TGraph.prototype = {
       var killLinks = this.getAllLinks(killNode);
       this.links = this.links.filter(function(link) {return killLinks.indexOf(link) < 0});
       this.nodes = this.nodes.filter(function(node) {return node != killNode;});
-      this.nodes_by_id[killNode.getId()] = undefined;
+      this.nodesById[killNode.getId()] = undefined;
     }
     return killNode;
   },
@@ -272,6 +274,39 @@ TGraph.prototype = {
     });
     return result + "]";
   },
+
+  tEquals: function(x)
+  {
+    var p;
+    for(p in this) {
+      if(typeof(x[p])=='undefined') {return false;}
+    }
+
+    for(p in this) {
+      if (this[p]) {
+        switch(typeof(this[p])) {
+        case 'object':
+          if (!this[p].equals(x[p])) { return false; } break;
+        case 'function':
+          if (typeof(x[p])=='undefined' ||
+              (p != 'equals' && this[p].toString() != x[p].toString()))
+            return false;
+          break;
+        default:
+          if (this[p] != x[p]) { return false; }
+        }
+      } else {
+        if (x[p])
+          return false;
+      }
+    }
+
+    for(p in x) {
+      if(typeof(this[p])=='undefined') {return false;}
+    }
+
+    return true;
+  }
 }
 
 // create the union of two graphs
@@ -301,6 +336,7 @@ TGraph.instanceOf = function(thing) {
   return TGraph.prototype.isPrototypeOf(thing);
 }
 
+exports = exports || {};
 exports.TGraph = TGraph;
 exports.TNode = TNode;
 exports.TLink = TLink;

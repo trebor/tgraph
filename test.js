@@ -1,4 +1,3 @@
-// var jsdom = require("jsdom");
 var buster = require("buster");
 var tg = require("./TGraph.js");
 
@@ -199,5 +198,26 @@ buster.testCase("a", {
 
     assert.equals(g3.getNodes().length, 9);
     assert.equals(g3.getLinks().length, 5);
+  },
+
+  "link idemopentent": function() {
+
+    var g = new tg.TGraph();
+    assert.defined(g);
+    g.addLink("a", "b", "l1");
+    g.addLink("b", "c", "l2");
+
+    assert.equals(g.getNodes().length, 3);
+    assert.equals(g.getLinks().length, 2);
+
+    g.addLink("a", "b", "l1");
+
+    assert.equals(g.getNodes().length, 3);
+    assert.equals(g.getLinks().length, 2);
+
+    g.addLink("b", "c", "l2");
+
+    assert.equals(g.getNodes().length, 3);
+    assert.equals(g.getLinks().length, 2);
   }
 });
