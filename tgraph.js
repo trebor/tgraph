@@ -336,7 +336,7 @@ TGraph.instanceOf = function(thing) {
   return TGraph.prototype.isPrototypeOf(thing);
 }
 
-exports = exports || {};
+var exports = exports || {};
 exports.TGraph = TGraph;
 exports.TNode = TNode;
 exports.TLink = TLink;
