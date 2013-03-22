@@ -22,8 +22,9 @@ TNode.prototype = {
 
   clone: function() {
     var other = new TNode(this.getId());
+    var self = this;
     Object.keys(this.getProperties()).forEach(function(property) {
-      other.setProperty(property, this.getProperty(property));
+      other.setProperty(property, self.getProperty(property));
     });
     return other;
   },
